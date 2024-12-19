@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="Run All Motors", group="Linear OpMode")
-//@Disabled
+@Disabled
 public class RunAllMotors extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();

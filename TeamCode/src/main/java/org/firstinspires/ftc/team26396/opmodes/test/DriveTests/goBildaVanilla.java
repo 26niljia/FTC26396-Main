@@ -1,4 +1,7 @@
+
 /*   MIT License
+
+
  *   Copyright (c) [2024] [Base 10 Assets, LLC]
  *
  *   Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,6 +22,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *   SOFTWARE.
  */
+/*
 
 package org.firstinspires.ftc.team26396.opmodes.test.DriveTests;
 
@@ -57,12 +61,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
  *
  */
 
+/*
 
 @TeleOp(name="goBILDAVanilla", group="Robot")
 //@Disabled
 public class goBildaVanilla extends LinearOpMode {
 
     /* Declare OpMode members. */
+/*
+
     public DcMotor  leftFrontDrive   = null; //the left drivetrain motor
     public DcMotor  rightFrontDrive  = null; //the right drivetrain motor
     public DcMotor  leftBackDrive    = null;
@@ -73,7 +80,6 @@ public class goBildaVanilla extends LinearOpMode {
     public CRServo  intake           = null; //the active intake servo
     public Servo    wrist            = null; //the wrist servo
 
-
     /* This constant is the number of encoder ticks for each degree of rotation of the arm.
     To find this, we first need to consider the total gear reduction powering our arm.
     First, we have an external 20t:100t (5:1) reduction created by two spur gears.
@@ -83,6 +89,8 @@ public class goBildaVanilla extends LinearOpMode {
     We can multiply these two ratios together to get our final reduction of ~254.47:1.
     The motor's encoder counts 28 times per rotation. So in total you should see about 7125.16
     counts per rotation of the arm. We divide that by 360 to get the counts per degree. */
+  /*
+
     final double ARM_TICKS_PER_DEGREE =
             28 // number of encoder ticks per rotation of the bare motor
                     * 250047.0 / 4913.0 // This is the exact gear ratio of the 50.9:1 Yellow Jacket gearbox
@@ -100,6 +108,7 @@ public class goBildaVanilla extends LinearOpMode {
     160 * ARM_TICKS_PER_DEGREE. This asks the arm to move 160° from the starting position.
     If you'd like it to move further, increase that number. If you'd like it to not move
     as far from the starting position, decrease it. */
+/*
 
     final double ARM_COLLAPSED_INTO_ROBOT  = 0;
     final double ARM_COLLECT               = 0 * ARM_TICKS_PER_DEGREE;
@@ -109,19 +118,30 @@ public class goBildaVanilla extends LinearOpMode {
     final double ARM_ATTACH_HANGING_HOOK   = 110 * ARM_TICKS_PER_DEGREE;
     final double ARM_WINCH_ROBOT           = 10  * ARM_TICKS_PER_DEGREE;
 
+
+
+
     /* Variables to store the speed the intake servo should be set at to intake, and deposit game elements. */
+/*
+
     final double INTAKE_COLLECT    = -1.0;
     final double INTAKE_OFF        =  0.0;
     final double INTAKE_DEPOSIT    =  0.5;
 
     /* Variables to store the positions that the wrist should be set to when folding in, or folding out. */
+/*
+
     final double WRIST_FOLDED_IN   = 0.1667;
     final double WRIST_FOLDED_OUT  = 0.5;
 
     /* A number in degrees that the triggers can adjust the arm position by */
+/*
+
     final double FUDGE_FACTOR = 15 * ARM_TICKS_PER_DEGREE;
 
     /* Variables that are used to set the arm to a specific position */
+/*
+
     double armPosition = (int)ARM_COLLAPSED_INTO_ROBOT;
     double armPositionFudgeFactor;
 
@@ -144,7 +164,10 @@ public class goBildaVanilla extends LinearOpMode {
     public void runOpMode() {
         /*
         These variables are private to the OpMode, and are used to control the drivetrain.
+
          */
+/*
+
         double left;
         double right;
         double forward;
@@ -153,6 +176,8 @@ public class goBildaVanilla extends LinearOpMode {
 
 
         /* Define and Initialize Motors */
+     /*
+
         leftFrontDrive  = hardwareMap.dcMotor.get("frontLeftMotor");
         leftBackDrive   = hardwareMap.dcMotor.get("backLeftMotor");
         rightFrontDrive = hardwareMap.dcMotor.get("frontRightMotor");
@@ -166,6 +191,7 @@ public class goBildaVanilla extends LinearOpMode {
        we need to reverse the left side of the drivetrain so it doesn't turn when we ask all the
        drive motors to go forward.
         */
+/*
 
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -173,6 +199,8 @@ public class goBildaVanilla extends LinearOpMode {
         /* Setting zeroPowerBehavior to BRAKE enables a "brake mode". This causes the motor to slow down
         much faster when it is coasting. This creates a much more controllable drivetrain. As the robot
         stops much quicker. */
+/*
+
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -181,12 +209,16 @@ public class goBildaVanilla extends LinearOpMode {
      //   hangMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         /*This sets the maximum current that the control hub will apply to the arm before throwing a flag */
+/*
+
         ((DcMotorEx) armMotor).setCurrentAlert(5,CurrentUnit.AMPS);
 
 
         /* Before starting the armMotor. We'll make sure the TargetPosition is set to 0.
         Then we'll set the RunMode to RUN_TO_POSITION. And we'll ask it to stop and reset encoder.
         If you do not have the encoder plugged into this motor, it will not run in this code. */
+/*
+
         armMotor.setTargetPosition(0);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -197,14 +229,20 @@ public class goBildaVanilla extends LinearOpMode {
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         /* Define and initialize servos.*/
+/*
+
         intake = hardwareMap.get(CRServo.class, "intake");
         wrist  = hardwareMap.get(Servo.class, "wrist");
 
         /* Make sure that the intake is off, and the wrist is folded in. */
+/*
+
         intake.setPower(INTAKE_OFF);
         wrist.setPosition(WRIST_FOLDED_OUT);
 
         /* Send telemetry message to signify robot waiting */
+/*
+
         telemetry.addLine("Robot Ready.");
         telemetry.update();
         // Retrieve the IMU from the hardware map
@@ -216,9 +254,13 @@ public class goBildaVanilla extends LinearOpMode {
         // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);
         /* Wait for the game driver to press play */
+/*
+
         waitForStart();
 
         /* Run until the driver presses stop */
+/*
+
         while (opModeIsActive())
 
         {  double y = -gamepad1.left_stick_y;
@@ -268,6 +310,7 @@ public class goBildaVanilla extends LinearOpMode {
             at the same time. "a" will win over and the intake will turn on. If we just had
             three if statements, then it will set the intake servo's power to multiple speeds in
             one cycle. Which can cause strange behavior. */
+/*
 
             if (gamepad1.left_bumper) {
                 intake.setPower(INTAKE_COLLECT);
@@ -287,6 +330,7 @@ public class goBildaVanilla extends LinearOpMode {
             both triggers an equal amount, they cancel and leave the arm at zero. But if one is larger
             than the other, it "wins out". This variable is then multiplied by our FUDGE_FACTOR.
             The FUDGE_FACTOR is the number of degrees that we can adjust the arm by with this function. */
+/*
 
             armPositionFudgeFactor = FUDGE_FACTOR * (gamepad2.right_trigger + (-gamepad2.left_trigger));
 
@@ -297,9 +341,12 @@ public class goBildaVanilla extends LinearOpMode {
             to start collecting. So it moves the armPosition to the ARM_COLLECT position,
             it folds out the wrist to make sure it is in the correct orientation to intake, and it
             turns the intake on to the COLLECT mode.*/
+/*
 
             if(gamepad1.a){
                 /* This is the intaking/collecting arm position */
+/*
+
                 armPosition = ARM_COLLECT;
                 liftPosition = LIFT_COLLAPSED;
                 wrist.setPosition(WRIST_FOLDED_OUT);
@@ -311,11 +358,15 @@ public class goBildaVanilla extends LinearOpMode {
                     Note here that we don't set the wrist position or the intake power when we
                     select this "mode", this means that the intake and wrist will continue what
                     they were doing before we clicked left bumper. */
+/*
+
                 armPosition = ARM_CLEAR_BARRIER;
             }
 
             else if (gamepad1.x){
                 /* This is the correct height to score the sample in the HIGH BASKET */
+/*
+
                 armPosition = ARM_SCORE_SAMPLE_IN_LOW;
                 liftPosition = LIFT_SCORING_IN_HIGH_BASKET;
             }
@@ -323,6 +374,8 @@ public class goBildaVanilla extends LinearOpMode {
             else if (gamepad1.dpad_left) {
                     /* This turns off the intake, folds in the wrist, and moves the arm
                     back to folded inside the robot. This is also the starting configuration */
+/*
+
                 armPosition = ARM_COLLAPSED_INTO_ROBOT;
                 liftPosition = LIFT_COLLAPSED;
                 intake.setPower(INTAKE_OFF);
@@ -331,12 +384,16 @@ public class goBildaVanilla extends LinearOpMode {
 
             else if (gamepad1.dpad_right){
                 /* This is the correct height to score SPECIMEN on the HIGH CHAMBER */
+/*
+
                 armPosition = ARM_SCORE_SPECIMEN;
                 wrist.setPosition(WRIST_FOLDED_IN);
             }
 
             else if (gamepad1.dpad_up){
                 /* This sets the arm to vertical to hook onto the LOW RUNG for hanging */
+/*
+
                 armPosition = ARM_ATTACH_HANGING_HOOK;
                 intake.setPower(INTAKE_OFF);
                 wrist.setPosition(WRIST_FOLDED_IN);
@@ -344,6 +401,8 @@ public class goBildaVanilla extends LinearOpMode {
 
             else if (gamepad1.dpad_down){
                 /* this moves the arm down to lift the robot up once it has been hooked */
+/*
+
                 armPosition = ARM_WINCH_ROBOT;
                 intake.setPower(INTAKE_OFF);
                 wrist.setPosition(WRIST_FOLDED_IN);
@@ -363,6 +422,7 @@ public class goBildaVanilla extends LinearOpMode {
             is above 45°, then we just set armLiftComp to 0. It's only if it's below 45° that we set it
             to a value.
              */
+/*
 
             if (armPosition < 45 * ARM_TICKS_PER_DEGREE){
                 armLiftComp = (0.25568 * liftPosition);
@@ -375,6 +435,7 @@ public class goBildaVanilla extends LinearOpMode {
             by the driver. We add the armPosition Variable to our armPositionFudgeFactor, before adding
             our armLiftComp, which adjusts the arm height for different lift extensions.
             We also set the target velocity (speed) the motor runs at, and use setMode to run it.*/
+/*
 
             armMotor.setTargetPosition((int) (armPosition + armPositionFudgeFactor + armLiftComp));
 
@@ -400,6 +461,7 @@ public class goBildaVanilla extends LinearOpMode {
             that our lift can move 2800mm in one cycle, but since each cycle is only a fraction of a second,
             we are only incrementing it a small amount each cycle.
              */
+/*
 
             if (gamepad2.right_bumper){
                 liftPosition += 2800 * cycletime;
@@ -410,6 +472,8 @@ public class goBildaVanilla extends LinearOpMode {
             /*here we check to see if the lift is trying to go higher than the maximum extension.
              *if it is, we set the variable to the max.
              */
+/*
+
             if (liftPosition > LIFT_SCORING_IN_HIGH_BASKET){
                 liftPosition = LIFT_SCORING_IN_HIGH_BASKET;
             }
@@ -425,6 +489,8 @@ public class goBildaVanilla extends LinearOpMode {
 
 
             /* Check to see if our arm is over the current limit, and report via telemetry. */
+/*
+
             if (((DcMotorEx) armMotor).isOverCurrent()){
                 telemetry.addLine("MOTOR EXCEEDED CURRENT LIMIT!");
             }
@@ -446,12 +512,16 @@ public class goBildaVanilla extends LinearOpMode {
             with just the difference, 0.1 seconds.
 
              */
+/*
+
             looptime = getRuntime();
             cycletime = looptime-oldtime;
             oldtime = looptime;
 
 
             /* send telemetry to the driver of the arm's current position and target position */
+/*
+
             telemetry.addData("arm Target Position: ", armMotor.getTargetPosition());
             telemetry.addData("arm Encoder: ", armMotor.getCurrentPosition());
             telemetry.addData("lift variable", liftPosition);
@@ -465,3 +535,5 @@ public class goBildaVanilla extends LinearOpMode {
         }
     }
 }
+
+*/

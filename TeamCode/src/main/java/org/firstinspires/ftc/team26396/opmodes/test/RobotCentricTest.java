@@ -2,12 +2,14 @@ package org.firstinspires.ftc.team26396.opmodes.test;
 
 import com.arcrobotics.ftclib.command.*;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.team26396.subsystems.drive.MecanumDriveSubsystem;
 import org.firstinspires.ftc.team26396.subsystems.drive.commands.RobotCentricCommand;
 
 @TeleOp(name = "Test - Robot Centric", group = "Test")
+@Disabled
 public final class RobotCentricTest extends CommandOpMode {
     GamepadEx driverGamepad;
 

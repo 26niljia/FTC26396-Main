@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.team26396.opmodes.test.DriveTests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Arm Control", group="TeleOp")
+@TeleOp(name="Arm Control", group="TeleOp")
+@Disabled
 public class LinearSlideTest extends OpMode {
 
     // Define the motor for the linear slide

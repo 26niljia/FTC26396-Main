@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.team26396.opmodes.test.DriveTests;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Robot Control", group="TeleOp")
+@Disabled
 public class TeleOpTest2 extends OpMode {
 
     // Define motors for drivetrain and arm components

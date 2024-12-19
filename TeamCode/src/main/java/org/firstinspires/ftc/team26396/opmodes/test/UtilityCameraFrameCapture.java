@@ -60,6 +60,7 @@ import java.util.Locale;
  */
 
 @TeleOp(name = "Utility: Camera Frame Capture v0.1", group = "Utility")
+@Disabled
 //@Disabled
 public class UtilityCameraFrameCapture extends LinearOpMode
 {

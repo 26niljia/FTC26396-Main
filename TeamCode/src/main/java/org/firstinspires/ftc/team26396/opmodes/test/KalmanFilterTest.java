@@ -3,6 +3,7 @@ package org.firstinspires.ftc.team26396.opmodes.test;
 import static org.firstinspires.ftc.team26396.constants.Constants.LocalizerConstants.OPTICAL_ODOMETRY_NAME;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.team26396.purepursuit.localization.OpticalLocalizer
 import org.firstinspires.ftc.team26396.utility.DataLogger;
 
 @TeleOp(name="TeleOpMode", group = "Teleop")
+@Disabled
 public final class KalmanFilterTest extends OpMode {
     private OpticalLocalizer localizer;
     private DataLogger dataLogger;

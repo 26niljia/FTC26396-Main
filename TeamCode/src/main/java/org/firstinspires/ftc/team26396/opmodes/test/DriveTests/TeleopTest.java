@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.team26396.opmodes.test.DriveTests;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 @TeleOp(name = "Complete TeleOp Control", group = "Linear OpMode")
+@Disabled
 public class TeleopTest extends LinearOpMode {
 
     // Declare OpMode members for the 4 motors, IMU, and elapsed time

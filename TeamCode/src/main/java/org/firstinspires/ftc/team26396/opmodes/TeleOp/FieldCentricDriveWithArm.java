@@ -1,161 +1,160 @@
-package org.firstinspires.ftc.team26396.opmodes.TeleOp;
-
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
-//SubsystemsCodeImports
-import org.firstinspires.ftc.team26396.opmodes.Subsystems.ArmCode;
-import org.firstinspires.ftc.team26396.opmodes.Subsystems.IntakeCode;
-import org.firstinspires.ftc.team26396.opmodes.Subsystems.WristCode;
-
-
-
-@TeleOp(name="TeleOp", group="TeleOpFINAL")
-public class FieldCentricDriveWithArm extends LinearOpMode {
-    private ArmCode armControl;  // Declare the ArmControl object
-    private IntakeCode intakeControl;  // Declare the intakeControl object
-    private WristCode wristControl;  // Declare the wristControl object
-
-
-    @Override
-    public void runOpMode() throws InterruptedException {
-        // Declare the motors for the drive system
-        DcMotor frontLeftMotor = hardwareMap.dcMotor.get("frontLeftMotor");
-        DcMotor backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
-        DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRightMotor");
-        DcMotor backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
-
-        // Declare the arm motors
-        DcMotor armMotor = hardwareMap.dcMotor.get("armMotor"); // aka LinearSlide
-        DcMotor liftMotor = hardwareMap.dcMotor.get("liftMotor"); // aka ArmPivot
-
-        //Declare intake servo
-        CRServo intakeServo = hardwareMap.get(CRServo.class, "intake");
-
-        //Declare intake servo
-        Servo wristServo = hardwareMap.get(Servo.class, "wrist");
-
-        // Reverse the right side motors (if necessary)
-        /*
-        NOTE: 1 motors is forward, 3 are reverse
-        TODO: Check if accuate. Otherwise, revert to:
-        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
-         */
-        frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-        frontRightMotor.setDirection(DcMotor.Direction.FORWARD);
-        backLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotor.Direction.REVERSE);
-
-
-        // Set zero power behavior to BRAKE for both motors to
-        //make sure they don't go crazy upon start
-        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        // Intialize the armControl object and pass the arm motors
-        armControl = new ArmCode(armMotor, liftMotor);
-
-        // Intialize the intakeControl object and pass the intake CRServo
-        intakeControl = new IntakeCode(intakeServo);
-
-        // Intialize the wristControl object and pass the wrist Servo
-        wristControl = new WristCode(wristServo);
-
-        // Retrieve the IMU from the hardware map
-        IMU imu = hardwareMap.get(IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
-        imu.initialize(parameters);
-
-        waitForStart();
-
-        while (opModeIsActive()) {
-            //
-            // DRIVE CODE -- Start --
-            //
-            /*
-            Utlize Field Centric Drive --
-            Means that robot will move in relation to field
-            Ex: Moves forward, then right, the front face of the robot will
-            still be looking the same direction even after turning.
-            */
-            //gamepad1 left and right sticks are used for strafing
-            //gamepad 1 right stick is used for turning
-            double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
-            double x = gamepad1.left_stick_x;
-            double rx = gamepad1.right_stick_x;
-
-            // Reset the robot's yaw when pressing the options button (on a PS4 controller)
-            if (gamepad1.options) {
-                imu.resetYaw();
-            }
-
-            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-
-            // Rotate the movement direction counter to the bot's rotation
-            double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
-            double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
-
-            rotX = rotX * 1.1;  // Counteract imperfect strafing
-
-            // Denominator is the largest motor power (absolute value) or 1
-            // This ensures all the powers maintain the same ratio
-            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-            double frontLeftPower = (rotY + rotX + rx) / denominator;
-            double backLeftPower = (rotY - rotX + rx) / denominator;
-            double frontRightPower = (rotY - rotX - rx) / denominator;
-            double backRightPower = (rotY + rotX - rx) / denominator;
-
-            frontLeftMotor.setPower(frontLeftPower);
-            backLeftMotor.setPower(backLeftPower);
-            frontRightMotor.setPower(frontRightPower);
-            backRightMotor.setPower(backRightPower);
-            //
-            // DRIVE CODE -- End --
-            //
-
-            /*
-             Arm control using the ArmCode class -- Uses Dpad Up and Down
-             and PS4 controller buttons 'cross' and 'triangle'
-              - Dpad Controls Linear Slide
-              - Buttons control Arm Rotation
-            */
-            armControl.controlArm(gamepad2);
-
-//maybe 1 does intake and wrist
-//2 does presets for wrist
-            //Intake control using the IntakeCode class -- uses bumper
-            intakeControl.controlIntake(gamepad2.left_bumper, gamepad2.right_bumper);
-
-            //Wrist control using the WristCode class -- Uses dpad
-            wristControl.controlWrist(gamepad2.dpad_left, gamepad2.dpad_right);
-
-            // Telemetry for monitoring
-            telemetry.addData("Front Left Motor Power", frontLeftPower);
-            telemetry.addData("Back Left Motor Power", backLeftPower);
-            telemetry.addData("Front Right Motor Power", frontRightPower);
-            telemetry.addData("Back Right Motor Power", backRightPower);
-            telemetry.addData("Arm Motor Power", armMotor.getPower());
-            telemetry.addData("Lift Motor Power", liftMotor.getPower());
-            telemetry.addData("Intake (CRServo) Power", intakeServo.getPower());
-            telemetry.addData("Wrist (Servo) Power", wristServo.getPosition());
-            telemetry.update();
-
-        }
-    }
-}
+//package org.firstinspires.ftc.team26396.opmodes.TeleOp;
+//
+//import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+//import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+//import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+//import com.qualcomm.robotcore.hardware.CRServo;
+//import com.qualcomm.robotcore.hardware.DcMotor;
+//import com.qualcomm.robotcore.hardware.Servo;
+//import com.qualcomm.robotcore.hardware.IMU;
+////import com.qualcomm.hardware.lynx.LynxModule;
+//import com.qualcomm.robotcore.hardware.DcMotorSimple;
+//import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+//
+//// Subsystems Imports
+//import org.firstinspires.ftc.team26396.opmodes.Subsystems.PresetArmCode;
+//import org.firstinspires.ftc.team26396.opmodes.Subsystems.IntakeCode;
+//import org.firstinspires.ftc.team26396.opmodes.Subsystems.WristCode;
+//import org.firstinspires.ftc.team26396.opmodes.Subsystems.DriveCode;
+//import org.firstinspires.ftc.team26396.opmodes.Subsystems.HangCode;
+//
+//@TeleOp(name = "TeleOpDriveWithArm", group = "TeleOpFINAL")
+//public class FieldCentricDriveWithArm extends LinearOpMode {
+//
+//    // Subsystems
+//    private PresetArmCode armControl;
+//    private IntakeCode intakeControl;
+//    private WristCode wristControl;
+//    private DriveCode driveControl;
+//    private HangCode hangControl;
+//
+//    @Override
+//    public void runOpMode() throws InterruptedException {
+//        // Declare the motors and servos
+//        DcMotor frontLeftMotor = hardwareMap.dcMotor.get("frontLeftMotor");
+//        DcMotor backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
+//        DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRightMotor");
+//        DcMotor backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
+//        DcMotor linearSlideMotor = hardwareMap.dcMotor.get("armMotor");
+//        DcMotor armMotor = hardwareMap.dcMotor.get("liftMotor");
+//        CRServo intakeServo = hardwareMap.get(CRServo.class, "intake");
+//        Servo wristServo = hardwareMap.get(Servo.class, "wrist");
+//        DcMotor HangMotor1 = hardwareMap.dcMotor.get("HM1");
+//        DcMotor HangMotor2 = hardwareMap.dcMotor.get("HM2");
+//
+//        // Initialize and configure IMU
+//        IMU imu = hardwareMap.get(IMU.class, "imu");
+//        IMU.Parameters imuParameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+//                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+//                RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
+//        imu.initialize(imuParameters);
+//
+//        // Reverse the necessary motors - Right = Forward, Left = Reverse
+////        frontLeftMotor.setDirection(DcMotor.Direction.REVERSE); //Forward
+////        frontRightMotor.setDirection(DcMotor.Direction.REVERSE);
+////        backLeftMotor.setDirection(DcMotor.Direction.REVERSE);
+////        backRightMotor.setDirection(DcMotor.Direction./*REVERSE*/FORWARD);
+//
+//
+//        // Set zero power behavior
+//        linearSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        HangMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        HangMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//        // Initialize subsystems
+//        armControl = new PresetArmCode(linearSlideMotor, armMotor);
+//        intakeControl = new IntakeCode(intakeServo);
+//        wristControl = new WristCode(wristServo);
+//        driveControl = new DriveCode(frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor, imu);
+//        hangControl = new HangCode(HangMotor1, HangMotor2);
+//        waitForStart();
+//
+///*        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+//
+//        for (LynxModule hub : allHubs) {
+//            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+//        }
+//*/
+//
+//
+//
+//        while (opModeIsActive()) {
+//
+//            /*
+//            Overall, Gamepad 1 Controls Drive, Wrist, Intake.
+//                     Gamepad 2 Controls ArmPrests and LinearSlide
+//             */
+//
+//            // DRIVE CODE
+///*            int frontLeftEncoderPos = frontLeftMotor.getCurrentPosition();
+//            int frontRightEncoderPos = frontRightMotor.getCurrentPosition();
+//            int backLeftEncoderPos = backLeftMotor.getCurrentPosition();
+//            int backRightEncoderPos = backRightMotor.getCurrentPosition();
+//*/
+//            driveControl.drive(gamepad1,0.8);
+//            /*
+//            Gamepad1 Joysticks:
+//            a) LeftStick, when moved in Y direction controls up and down movement
+//            b) LeftStick, when moved in X direction controls left and right (strafing) movement
+//            c) RightStick, when moved in the +X direction right, and left in the -X direction
+//             */
+//
+//            // ARM CONTROL
+//            armControl.controlArmAndSlide(gamepad2);
+//            /*
+//            LINEAR SLIDE
+//            Gamepad2 Trigger:
+//            a) Using Left Trigger - move linear slide backward
+//            b) Using Right Trigger - move linear slide forward
+//
+//            ARM
+//            Gamepad2 Dpad:
+//            c) Using Dpad UP - Lift to highest position, for hanging
+//            d) Using Dpad DOWN - Lift to Lowest position, pick up blocks from submersible
+//            e) Using Dpad LEFT - Lift to low position, i.e Low Basket
+//            f) Using Dpad RIGHT - Lift to high position, i.e Upper Basket
+//             */
+//
+//            // INTAKE CONTROL
+//            intakeControl.controlIntake(gamepad1.right_bumper, gamepad1.left_bumper);
+//            /*
+//            Gamepad1 Trigger:
+//            a) Using Left Trigger - pushes block OUTWARD
+//            b) Using Right Trigger - take block IN
+//             */
+//
+//            // WRIST CONTROL
+//            wristControl.controlWrist(gamepad2.square, gamepad2.circle);
+//            /*
+//            Gamepad2 Buttons (PS4 Controller):
+//            a) Using Square Button - Bends Wrist to the Left
+//            b) Using Circle Trigger - Makes Wrist straight
+//             */
+//
+//            //HANG CONTROL
+//            hangControl.controlHang(gamepad1);
+//            /*
+//            Gamepad1 Buttons (Logitech Controller):
+//            a) Using A button - Extends the linearSlides
+//            b) Using B button - Retracts the linearSlides
+//            Note: HangMotor1 Encoder Value should ALWAYS be equal to HangMotor2 Encoder Value
+//             */
+//
+//            // TELEMETRY
+//            telemetry.addData("Front Left Power", frontLeftMotor.getPower());
+//            telemetry.addData("Back Left Power", backLeftMotor.getPower());
+//            telemetry.addData("Front Right Power", frontRightMotor.getPower());
+//            telemetry.addData("Back Right Power", backRightMotor.getPower());
+//            telemetry.addData("LinearSlide Motor Power", linearSlideMotor.getPower());
+//            telemetry.addData("Arm Motor Power", armMotor.getPower());
+//            telemetry.addData("Intake Power", intakeServo.getPower());
+//            telemetry.addData("Wrist Position", wristServo.getPosition());
+//            telemetry.addData("Linear Slide Encoder", linearSlideMotor.getCurrentPosition());
+//            telemetry.addData("Arm Motor Encoder", armMotor.getCurrentPosition());
+//            telemetry.addData("Hang Motor1 Encoder", HangMotor1.getCurrentPosition());
+//            telemetry.addData("Hang Motor2 Encoder", HangMotor2.getCurrentPosition());
+//            telemetry.update();
+//        }
+//    }
+//}

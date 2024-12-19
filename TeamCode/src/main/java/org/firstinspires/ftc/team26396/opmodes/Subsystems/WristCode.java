@@ -10,7 +10,7 @@ public class WristCode {
     // Define constants for wrist servo positions
     private static final double WRIST_COLLECT = 1.0;  // Position for collecting
     private static final double WRIST_DEPOSIT = 0.0; // Position for depositing
-    private static final double WRIST_HOME = 0.5;    // Home Position
+    private static final double WRIST_HOME = 0.4;    // Home Position
 
     public WristCode(Servo wrist) {
         this.wrist = wrist;
@@ -24,7 +24,9 @@ public class WristCode {
      * @param leftDpad The state of the left dpad button on the gamepad
      * @param rightDpad The state of the right dpad button on the gamepad
      */
+
     public void controlWrist(boolean leftDpad, boolean rightDpad) {
+
         if (leftDpad) {
             wrist.setPosition(WRIST_COLLECT); // Set position to collect when left dpad is pressed
         }
